@@ -50,8 +50,9 @@ program
   .option('-e, --ejs', 'add ejs engine support', renamedOption('--ejs', '--view=ejs'))
   .option('    --pug', 'add pug engine support', renamedOption('--pug', '--view=pug'))
   .option('    --hbs', 'add handlebars engine support', renamedOption('--hbs', '--view=hbs'))
+  .option('    --ehbs', 'add extended handlebars engine support', renamedOption('--ehbs', '--view=ehbs'))
   .option('-H, --hogan', 'add hogan.js engine support', renamedOption('--hogan', '--view=hogan'))
-  .option('-v, --view <engine>', 'add view <engine> support (dust|ejs|hbs|hjs|jade|pug|twig|vash) (defaults to jade)')
+  .option('-v, --view <engine>', 'add view <engine> support (dust|ejs|hbs|ehbs|hjs|jade|pug|twig|vash) (defaults to jade)')
   .option('-c, --css <engine>', 'add stylesheet <engine> support (less|stylus|compass|sass) (defaults to plain css)')
   .option('    --git', 'add .gitignore')
   .option('-f, --force', 'force on non-empty directory')
@@ -204,6 +205,7 @@ function createApplication (name, path) {
           copyTemplate('hogan/index.hjs', path + '/views/index.hjs')
           copyTemplate('hogan/error.hjs', path + '/views/error.hjs')
           break
+        case 'ehbs':
         case 'hbs':
           copyTemplate('hbs/index.hbs', path + '/views/index.hbs')
           copyTemplate('hbs/layout.hbs', path + '/views/layout.hbs')
@@ -257,10 +259,10 @@ function createApplication (name, path) {
           render: 'adaro.dust()'
         }
         break
-      case 'hbs':
+      case 'ehbs':
         app.locals.modules.handlebars = 'express-handlebars'
         app.locals.view = {
-          engine: program.view,
+          engine: 'hbs',
           render: 'handlebars.create({\n' +
             '  extname:       \'hbs\',\n' +
             '  layoutsDir:    path.join(__dirname, \'views\'),\n' +
@@ -307,8 +309,11 @@ function createApplication (name, path) {
       case 'hjs':
         pkg.dependencies['hjs'] = '~0.0.6'
         break
-      case 'hbs':
+      case 'ehbs':
         pkg.dependencies['express-handlebars'] = '~3.0.0'
+        break
+      case 'hbs':
+        pkg.dependencies['hbs'] = '~4.0.1'
         break
       case 'pug':
         pkg.dependencies['pug'] = '~2.0.0-beta11'
@@ -451,6 +456,7 @@ function main () {
   if (program.view === undefined) {
     if (program.ejs) program.view = 'ejs'
     if (program.hbs) program.view = 'hbs'
+    if (program.ehbs) program.view = 'ehbs'
     if (program.hogan) program.view = 'hjs'
     if (program.pug) program.view = 'pug'
   }
